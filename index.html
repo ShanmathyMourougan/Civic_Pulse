@@ -1,0 +1,154 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#163d3a" />
+  <title>CivicPulse</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">CP</div>
+        <div>
+          <strong>CivicPulse</strong>
+          <span>Municipal issue intelligence</span>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Views">
+        <button class="nav-item active" data-view="overview" type="button">Overview</button>
+        <button class="nav-item" data-view="report" type="button">New report</button>
+        <button class="nav-item" data-view="map" type="button">Live map</button>
+        <button class="nav-item" data-view="worker" type="button">Worker queue</button>
+        <button class="nav-item" data-view="admin" type="button">Admin</button>
+      </nav>
+
+      <div class="role-panel">
+        <label for="roleSelect">Role</label>
+        <select id="roleSelect">
+          <option>Citizen</option>
+          <option>Civic Worker</option>
+          <option>Administrator</option>
+        </select>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Chennai pilot grid</p>
+          <h1 id="pageTitle">Citywide Pulse</h1>
+        </div>
+        <div class="top-actions">
+          <button id="syncBtn" class="icon-btn" type="button" title="Sync offline queue">↻</button>
+          <button id="notifyBtn" class="primary-btn" type="button">Enable alerts</button>
+        </div>
+      </header>
+
+      <section class="view active" id="overviewView" data-title="Citywide Pulse">
+        <div class="metric-grid">
+          <article class="metric"><span>Open issues</span><strong id="openCount">0</strong><small>12 high urgency</small></article>
+          <article class="metric"><span>Avg. response</span><strong>18h</strong><small>Down 21% this week</small></article>
+          <article class="metric"><span>Citizen trust</span><strong>84%</strong><small>Based on closure feedback</small></article>
+          <article class="metric"><span>Offline queued</span><strong id="queueCount">0</strong><small>Ready for background sync</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="panel map-panel">
+            <div class="panel-head">
+              <h2>Density heatmap</h2>
+              <button class="ghost-btn" data-view-jump="map" type="button">Inspect</button>
+            </div>
+            <div class="mini-map" aria-label="Issue heatmap preview">
+              <span class="heat heat-a"></span><span class="heat heat-b"></span><span class="heat heat-c"></span>
+              <span class="pin road" style="--x:23%;--y:44%">R</span>
+              <span class="pin water" style="--x:58%;--y:35%">W</span>
+              <span class="pin waste" style="--x:72%;--y:68%">S</span>
+              <span class="pin light" style="--x:41%;--y:74%">L</span>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>AI triage stream</h2><span class="live-dot">Live</span></div>
+            <div id="triageFeed" class="feed"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="reportView" data-title="Submit Civic Report">
+        <form id="reportForm" class="report-layout">
+          <section class="panel report-form">
+            <h2>Report details</h2>
+            <label>Photo description
+              <textarea id="photoDescription" required placeholder="Example: Large pothole filled with rainwater near bus stop"></textarea>
+            </label>
+            <label>Location context
+              <input id="locationContext" required value="T. Nagar, Chennai near Pondy Bazaar" />
+            </label>
+            <div class="form-row">
+              <label>Latitude<input id="lat" type="number" step="0.0001" value="13.0418" /></label>
+              <label>Longitude<input id="lng" type="number" step="0.0001" value="80.2341" /></label>
+            </div>
+            <div class="form-row">
+              <label>Connectivity
+                <select id="connectivity"><option>Online</option><option>Offline</option></select>
+              </label>
+              <label>Visibility
+                <select><option>Public</option><option>Anonymous</option></select>
+              </label>
+            </div>
+            <button class="primary-btn" type="submit">Analyze and submit</button>
+          </section>
+
+          <section class="panel ai-card">
+            <div class="panel-head"><h2>Structured AI output</h2><span id="aiStatus">Ready</span></div>
+            <pre id="aiOutput">{
+  "category": "pending",
+  "urgencyScore": 0,
+  "department": "pending",
+  "complaintDraft": "Submit a report to generate civic-ready text."
+}</pre>
+          </section>
+        </form>
+      </section>
+
+      <section class="view" id="mapView" data-title="Live Geo Intelligence">
+        <section class="panel full-panel">
+          <div class="panel-head">
+            <h2>Issues within 2km of selected coordinate</h2>
+            <div class="segmented" role="group" aria-label="Map layers">
+              <button class="active" type="button">Heat</button><button type="button">Pins</button><button type="button">Departments</button>
+            </div>
+          </div>
+          <div class="large-map">
+            <div class="route horizontal"></div><div class="route vertical"></div><div class="route diagonal"></div>
+            <span class="heat heat-a"></span><span class="heat heat-b"></span><span class="heat heat-c"></span><span class="heat heat-d"></span>
+            <div id="mapPins"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="workerView" data-title="Civic Worker Queue">
+        <section class="panel full-panel">
+          <div class="panel-head"><h2>Assigned tickets</h2><button id="resolveFirst" class="ghost-btn" type="button">Resolve next</button></div>
+          <div id="ticketList" class="ticket-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="adminView" data-title="Department Operations">
+        <div class="admin-grid">
+          <section class="panel"><h2>SLA risk</h2><canvas id="slaChart" width="520" height="260"></canvas></section>
+          <section class="panel"><h2>Feature coverage</h2><ul class="feature-list" id="featureList"></ul></section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

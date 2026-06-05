@@ -1,0 +1,9 @@
+﻿{
+  "name": "CivicPulse",
+  "short_name": "CivicPulse",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f2",
+  "theme_color": "#163d3a",
+  "description": "Municipal issue reporting, AI triage, geo intelligence, and civic operations dashboard."
+}
